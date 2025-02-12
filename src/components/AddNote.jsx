@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 const AddNote = () => {
   const [title, setTitle] = useState("");
@@ -9,15 +10,18 @@ const AddNote = () => {
 
   const addNewNoteMutation = useMutation({
     mutationFn: async (newNote) => {
-      return await axios.post("http://localhost:3000/notes", { newNote });
+      return await axios.post("http://localhost:3000/notes", newNote);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["notes"]);
+      toast.success("Notes added successfully.");
+    },
+    onError: () => {
+      toast.error("Something went wrong");
     },
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     addNewNoteMutation.mutate({
       title: title,
       content: description,
@@ -47,7 +51,11 @@ const AddNote = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <button type="button" className="btn btn-outline-dark">
+          <button
+            type="button"
+            className="btn btn-outline-dark"
+            onClick={handleSubmit}
+          >
             Add Note
           </button>
         </div>

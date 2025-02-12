@@ -3,7 +3,7 @@ import DeleteNoteButton from "./DeleteNoteButton.jsx";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import EditNote from "./EditNote.jsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const fetchNotes = async () => {
   const res = await axios.get("http://localhost:3000/notes");
@@ -20,7 +20,14 @@ const NotesList = () => {
     queryFn: fetchNotes,
   });
 
-  const [pinnedNotes, setPinnedNotes] = useState({});
+  const [pinnedNotes, setPinnedNotes] = useState(() => {
+    const saved = localStorage.getItem("pinnedNotes");
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  useEffect(() => {
+    localStorage.setItem("pinnedNotes", JSON.stringify(pinnedNotes));
+  }, [pinnedNotes]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error</div>;

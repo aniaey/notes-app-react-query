@@ -8,7 +8,11 @@ const PinNoteButton = ({ noteId, isPinned, onTogglePin }) => {
         <button
           type="button"
           className="btn bg-dark text-white"
-          onClick={() => onTogglePin(noteId)}
+          title={"Unpin note"}
+          onClick={(e) => {
+            e.stopPropagation();
+            onTogglePin(noteId);
+          }}
         >
           <BsPinFill />
         </button>
@@ -16,7 +20,11 @@ const PinNoteButton = ({ noteId, isPinned, onTogglePin }) => {
         <button
           type="button"
           className="btn btn-outline-dark"
-          onClick={() => onTogglePin(noteId)}
+          title={"Pin note"}
+          onClick={(e) => {
+            e.stopPropagation();
+            onTogglePin(noteId);
+          }}
         >
           <BsPin />
         </button>

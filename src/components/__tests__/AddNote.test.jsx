@@ -12,7 +12,7 @@ describe("AddNote", () => {
         const postedNote = await request.json();
         await waitOneTick();
         return HttpResponse.json(postedNote);
-      })
+      }),
     );
   });
 
@@ -22,11 +22,11 @@ describe("AddNote", () => {
     // Create the note
     await userEvent.type(
       await screen.findByRole("textbox", { name: "Title" }),
-      "Testing"
+      "Testing",
     );
     await userEvent.type(
       screen.getByRole("textbox", { name: "Content" }),
-      "Don't forget to check the tests"
+      "Don't forget to check the tests",
     );
     // click the button, but don't wait for the action to finish
     // so we can check the button text changes when loading
@@ -35,7 +35,7 @@ describe("AddNote", () => {
     // check the button becomes disabled and says 'Adding note'
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: /Adding note/i })
+        screen.getByRole("button", { name: /Adding note/i }),
       ).toBeDisabled();
     });
   });
@@ -46,16 +46,16 @@ describe("AddNote", () => {
     // Create the note
     await userEvent.type(
       await screen.findByRole("textbox", { name: "Title" }),
-      "Testing"
+      "Testing",
     );
     await userEvent.type(
       screen.getByRole("textbox", { name: "Content" }),
-      "Don't forget to check the tests"
+      "Don't forget to check the tests",
     );
     await userEvent.click(screen.getByRole("button", { name: "Add note" }));
 
     expect(await screen.getByRole("status")).toHaveTextContent(
-      "Note successfully added"
+      "Note successfully added",
     );
 
     // Check the form is now cleared
@@ -68,7 +68,7 @@ describe("AddNote", () => {
       http.post("http://localhost:3000/notes", async () => {
         delay();
         return HttpResponse.json(null, { status: 500 });
-      })
+      }),
     );
 
     renderWithAppContext(<AddNote />);
@@ -76,11 +76,11 @@ describe("AddNote", () => {
     // Create the note
     await userEvent.type(
       await screen.findByRole("textbox", { name: "Title" }),
-      "Testing"
+      "Testing",
     );
     await userEvent.type(
       screen.getByRole("textbox", { name: "Content" }),
-      "Don't forget to check the tests"
+      "Don't forget to check the tests",
     );
     await userEvent.click(screen.getByRole("button", { name: "Add note" }));
 
@@ -88,15 +88,15 @@ describe("AddNote", () => {
     expect(screen.getByText("Internal Server Error")).toBeInTheDocument();
 
     expect(await screen.getByRole("status")).toHaveTextContent(
-      "There was an error adding the note"
+      "There was an error adding the note",
     );
 
     // Check the form is NOT cleared
     expect(screen.getByRole("textbox", { name: "Title" })).toHaveValue(
-      "Testing"
+      "Testing",
     );
     expect(screen.getByRole("textbox", { name: "Content" })).toHaveValue(
-      "Don't forget to check the tests"
+      "Don't forget to check the tests",
     );
   });
 });

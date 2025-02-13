@@ -12,8 +12,9 @@ const DeleteNoteButton = ({ noteId }) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["notes"]);
-      toast.success("Note deleted");
+      toast.success("Note successfully deleted");
     },
+    onError: () => toast.error("There was an error deleting the note"),
   });
 
   return (
@@ -21,9 +22,14 @@ const DeleteNoteButton = ({ noteId }) => {
       <button
         type="button"
         className="btn bg-danger"
-        onClick={() => deleteNoteMutation.mutate()}
+        disabled={deleteNoteMutation.isPending}
+        title={deleteNoteMutation.isPending ? "Deleting note" : "Delete note"}
+        onClick={(e) => {
+          e.stopPropagation();
+          deleteNoteMutation.mutate();
+        }}
       >
-        <BsTrash />
+        {deleteNoteMutation.isPending ? "Deleting note" : <BsTrash />}
       </button>
     </>
   );

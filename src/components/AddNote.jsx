@@ -5,8 +5,9 @@ import toast from "react-hot-toast";
 
 const AddNote = () => {
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [content, setContent] = useState("");
   const queryClient = useQueryClient();
+  const [error, setError] = useState();
 
   const addNewNoteMutation = useMutation({
     mutationFn: async (newNote) => {
@@ -14,29 +15,37 @@ const AddNote = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["notes"]);
-      toast.success("Notes added successfully.");
+      toast.success("Note successfully added");
+      setTitle("");
+      setContent("");
     },
-    onError: () => {
-      toast.error("Something went wrong");
+    onError: (error) => {
+      toast.error("There was an error adding the note");
+      setError(error.response.statusText);
     },
   });
 
   const handleSubmit = () => {
+    if (!title || !content) {
+      toast.error("Your note is empty");
+      return;
+    }
+
     addNewNoteMutation.mutate({
-      title: title,
-      content: description,
+      title,
+      content,
     });
-    setTitle("");
-    setDescription("");
   };
 
   return (
     <div className="card bg-primary-subtle">
       <form onSubmit={handleSubmit}>
+        {error && <span style={{ color: "red" }}>{error}</span>}
         <div className="card-body form-group d-flex flex-column gap-2">
           <input
             className="form-control"
             type="text"
+            name="Title"
             placeholder={"Title"}
             aria-label={"Title"}
             value={title}
@@ -47,16 +56,18 @@ const AddNote = () => {
               height: "80px",
             }}
             className="form-control"
+            name={"Content"}
             placeholder="Take a note ..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            aria-label={"Content"}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
           />
           <button
-            type="button"
+            type="submit"
             className="btn btn-outline-dark"
-            onClick={handleSubmit}
+            disabled={addNewNoteMutation.isPending}
           >
-            Add Note
+            {addNewNoteMutation.isPending ? "Adding note" : "Add note"}
           </button>
         </div>
       </form>

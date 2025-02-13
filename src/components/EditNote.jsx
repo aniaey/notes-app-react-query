@@ -3,16 +3,17 @@ import { useState } from "react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-const EditNote = ({ note }) => {
-  const [newTitle, setNewTitle] = useState(note.title);
-  const [newDescription, setNewDescription] = useState(note.content);
+const EditNote = ({ note, onSave }) => {
+  const [title, setTitle] = useState(note.title);
+  const [content, setContent] = useState(note.content);
 
   const queryClient = useQueryClient();
 
   const handleSubmit = async () => {
     saveNoteMutation.mutate({
-      title: newTitle,
-      content: newDescription,
+      ...note,
+      title,
+      content,
     });
   };
 
@@ -24,8 +25,12 @@ const EditNote = ({ note }) => {
       );
     },
     onSuccess: () => {
+      onSave(note);
       queryClient.invalidateQueries(["notes"]);
-      toast.success("Note edited");
+      toast.success("Note successfully saved");
+    },
+    onError: () => {
+      toast.error("There was an error saving the note");
     },
   });
 
@@ -36,24 +41,27 @@ const EditNote = ({ note }) => {
           <input
             className="form-control"
             type="text"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
+            aria-label={"Title"}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
           <textarea
             style={{
               height: "80px",
             }}
             className="form-control"
-            placeholder="Comments"
-            value={newDescription}
-            onChange={(e) => setNewDescription(e.target.value)}
+            placeholder="Take a note ..."
+            aria-label={"Content"}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
           />
           <button
             type="button"
             className="btn bg-secondary-subtle"
             onClick={handleSubmit}
+            disabled={saveNoteMutation.isPending}
           >
-            Save changes
+            {saveNoteMutation.isPending ? "Saving ..." : "Save"}
           </button>
         </div>
       </form>

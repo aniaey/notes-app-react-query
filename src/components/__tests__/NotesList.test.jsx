@@ -18,7 +18,7 @@ describe("Notes List", () => {
         http.get("http://localhost:3000/notes", () => {
           delay();
           return HttpResponse.json([{ id: uuid(), content: "hello tests" }]);
-        })
+        }),
       );
       renderWithAppContext(<NotesList />);
 
@@ -35,7 +35,7 @@ describe("Notes List", () => {
             { id: uuid(), title: "title1", content: "content1" },
             { id: uuid(), title: "title2", content: "content2" },
           ]);
-        })
+        }),
       );
       renderWithAppContext(<NotesList />);
 
@@ -52,12 +52,12 @@ describe("Notes List", () => {
       server.use(
         http.get("http://localhost:3000/notes", async () => {
           return HttpResponse.json(null, { status: 500 });
-        })
+        }),
       );
       renderWithAppContext(<NotesList />);
       await waitFor(() => {
         expect(
-          screen.getByText(/Request failed with status code 500/)
+          screen.getByText(/Request failed with status code 500/),
         ).toBeInTheDocument();
       });
     });
@@ -71,7 +71,7 @@ describe("Notes List", () => {
               { id: uuid(), content: "second" },
               { id: uuid(), content: "third" },
             ]);
-          })
+          }),
         );
         renderWithAppContext(<NotesList />);
 
@@ -90,21 +90,35 @@ describe("Notes List", () => {
           http.get("http://localhost:3000/notes", () => {
             return HttpResponse.json([
               { id: uuid(), content: "first" },
-              { id: uuid(), content: "second", is_pinned: true },
+              { id: uuid(), content: "second" },
               { id: uuid(), content: "third" },
-              { id: uuid(), content: "fourth", is_pinned: true },
+              { id: uuid(), content: "fourth" },
               { id: uuid(), content: "fifth" },
             ]);
-          })
+          }),
         );
         renderWithAppContext(<NotesList />);
 
         const notes = await screen.findAllByRole("listitem");
+        const fourthNote = notes.find((note) =>
+          note.textContent.includes("fourth"),
+        );
+        const secondNote = notes.find((note) =>
+          note.textContent.includes("second"),
+        );
+
+        await userEvent.click(
+          within(fourthNote).getByRole("button", { name: "Pin note" }),
+        );
+        await userEvent.click(
+          within(secondNote).getByRole("button", { name: "Pin note" }),
+        );
+
         expect(notes.map((note) => note.textContent)).toEqual([
-          "fourth",
-          "second",
           "fifth",
+          "fourth",
           "third",
+          "second",
           "first",
         ]);
       });
@@ -142,8 +156,8 @@ describe("Notes List", () => {
             const postedNote = await request.json();
             dummyNotes[index] = { ...dummyNotes[index], ...postedNote };
             return HttpResponse.json();
-          }
-        )
+          },
+        ),
       );
     });
 
@@ -153,11 +167,11 @@ describe("Notes List", () => {
       // Create the note
       await userEvent.type(
         await screen.findByRole("textbox", { name: "Title" }),
-        "Testing"
+        "Testing",
       );
       await userEvent.type(
         screen.getByRole("textbox", { name: "Content" }),
-        "Don't forget to check the tests"
+        "Don't forget to check the tests",
       );
       await userEvent.click(screen.getByRole("button", { name: "Add note" }));
 
@@ -168,7 +182,7 @@ describe("Notes List", () => {
       const notes = screen.getAllByRole("listitem");
       expect(within(notes[0]).getByText("Testing")).toBeInTheDocument();
       expect(
-        within(notes[0]).getByText("Don't forget to check the tests")
+        within(notes[0]).getByText("Don't forget to check the tests"),
       ).toBeInTheDocument();
     });
 
@@ -184,7 +198,7 @@ describe("Notes List", () => {
 
       // Check the notes list is now empty
       await waitFor(() =>
-        expect(screen.queryAllByRole("listitem")).toHaveLength(0)
+        expect(screen.queryAllByRole("listitem")).toHaveLength(0),
       );
     });
 
@@ -211,7 +225,7 @@ describe("Notes List", () => {
       expect(
         within(notes[0]).queryByRole("button", {
           name: "Pin note",
-        })
+        }),
       ).toBeInTheDocument();
     });
   });
